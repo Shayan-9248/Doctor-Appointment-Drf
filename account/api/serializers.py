@@ -29,12 +29,11 @@ class UserRetrieveSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = (
-            "id",
             "username",
             "email",
-            "phone_number",
             "first_name",
             "last_name",
+            "id",
         )
 
 
