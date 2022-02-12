@@ -19,20 +19,16 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import (
     IsAuthenticated,
     IsAdminUser,
+    AllowAny,
 )
 from rest_framework.generics import GenericAPIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from rest_framework.decorators import (
-    api_view, 
-    renderer_classes, 
-    permission_classes,
-)
+from rest_framework.decorators import api_view, action
 from rest_framework.views import APIView
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status
 from drf_yasg import openapi
-from drf_yasg.renderers import SwaggerUIRenderer, OpenAPIRenderer
 from drf_yasg.utils import swagger_auto_schema
 from rest_framework_simplejwt.tokens import RefreshToken
 
@@ -53,28 +49,45 @@ User = get_user_model()
 class UserViewSet(ListModelMixin, 
                   RetrieveModelMixin, 
                   DestroyModelMixin, 
-                  UpdateModelMixin, 
                   GenericViewSet):
     def get_permissions(self):
-        if self.action == ['list', 'retrieve', 'delete']:
+        if self.action == ['list', 'delete']:
             permission_classes = (IsAdminUser,)
         else:
-            permission_classes = [IsAdminUser]
+            permission_classes = (AllowAny,)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return User.objects.all()
 
     def get_serializer_class(self):
-        if self.action == 'list':
+        if self.action in ['list', 'destroy']:
             return UserListSerializer
         elif self.action == 'retrieve':
             return UserRetrieveSerializer
+
+
+class UserProfileViewSet(GenericViewSet):
+    queryset = User.objects.filter(is_active=True)
+    serializer_class = UserRetrieveSerializer
+    permission_classes = (IsAuthenticated,)
+    http_method_names = ['get', 'patch']
+
+    @action(detail=False, methods=['GET', 'PATCH'])
+    def me(self, request):
+        user = User.objects.get(pk=request.user.id)
+        if request.method == 'GET':
+            serializer = self.serializer_class(user)
+            return Response(serializer.data)
+        elif request.method == 'PATCH':
+            serializer = UserUpdateSerializer(user, data=request.data)
+            serializer.is_valid(raise_exception=True)
+            serializer.save()
+            return Response(serializer.data)
     
 
 class SignUpView(GenericAPIView):
     serializer_class = CreateUserSerializer
-    # renderer_classes = (UserRenderer,)
 
     def post(self, request):
         user = request.data
