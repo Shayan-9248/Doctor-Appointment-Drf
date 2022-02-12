@@ -14,6 +14,14 @@ def api_client():
 @pytest.fixture
 def authenticate(api_client):
     def do_authenticate(is_staff=False):
-        return api_client.force_authenticate(user=User(is_staff=True))
+        return api_client.force_authenticate(user=User(is_staff=is_staff))
+
+    return do_authenticate
+
+
+@pytest.fixture
+def authenticate_username(api_client):
+    def do_authenticate(username):
+        return api_client.force_authenticate(user=User(username=username))
 
     return do_authenticate
