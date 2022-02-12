@@ -20,6 +20,7 @@ from rest_framework.permissions import (
     IsAuthenticated,
     IsAdminUser,
 )
+from rest_framework.generics import GenericAPIView
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework.decorators import (
@@ -42,8 +43,9 @@ from .serializers import (
     UserRetrieveSerializer,
     UserUpdateSerializer,
     ChangePasswordSerializer,
+    EmailVerificationSerializer,
 )
-from config.proj import tasks
+from account import tasks
 
 User = get_user_model()
 
@@ -70,50 +72,54 @@ class UserViewSet(ListModelMixin,
             return UserRetrieveSerializer
     
 
-@swagger_auto_schema(method='post', request_body=openapi.Schema(
-    type=openapi.TYPE_OBJECT,
-    properties={
-        'email': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
-        'username': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
-        'password': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
-    }), responses={201: 'done'})
-@api_view(['POST'])
-@renderer_classes([SwaggerUIRenderer, OpenAPIRenderer])
-@permission_classes((AllowAny,))
-def sign_in_view(request):
-    serializer = CreateUserSerializer(data=request.data)
-    serializer.is_valid(raise_exception=True)
-    serializer.save()
-    user_data = serializer.data
-    user = User.objects.get(email=user_data['email'])
-    user.is_active = False
-    user.save()
-    token = RefreshToken.for_user(user).access_token
-    current_site = get_current_site(request).domain
-    relativeLink = reverse('email_verify')
-    absurl = 'http://' + current_site + relativeLink + "?token=" + str(token)
-    email_body = 'Hi '+ user.username + \
-        ' Use the link below to verify your email \n' + absurl
-    data = {'email_body': email_body, 'to_email': user.email,
-            'email_subject': 'Verify your email'}
+class SignUpView(GenericAPIView):
+    serializer_class = CreateUserSerializer
+    # renderer_classes = (UserRenderer,)
 
-    tasks.send_email.delay(data)
-    return Response(user_data, status=status.HTTP_201_CREATED)
+    def post(self, request):
+        user = request.data
+        serializer = self.serializer_class(data=user)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        user_data = serializer.data
+        user = User.objects.get(email=user_data['email'])
+        token = RefreshToken.for_user(user).access_token
+        current_site = get_current_site(request).domain
+        relativeLink = reverse('email_verify')
+        absurl = 'http://' + current_site + relativeLink + "?token=" + str(token)
+        email_body = 'Hi '+user.username + \
+            ' Use the link below to verify your email \n' + absurl
+        data = {'email_body': email_body, 'to_email': user.email,
+                'email_subject': 'Verify your email'}
+
+        email = EmailMessage(
+                subject=data['email_subject'], 
+                body=data['email_body'], 
+                to=[data['to_email']])
+        email.send(fail_silently=False)
+        return Response(user_data, status=status.HTTP_201_CREATED)
 
 
-def verify_email(request):
-    token = request.GET.get('token')
-    try:
-        payload = jwt.decode(token, settings.SECRET_KEY)
-        user = User.objects.get(id=payload['user_id'])
-        if not user.is_active:
-            user.is_active = True
-            user.save()
-        return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
-    except jwt.ExpiredSignatureError as identifier:
-        return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
-    except jwt.exceptions.DecodeError as identifier:
-        return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+class VerifyEmail(APIView):
+    serializer_class = EmailVerificationSerializer
+
+    token_param_config = openapi.Parameter(
+        'token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+
+    @swagger_auto_schema(manual_parameters=[token_param_config])
+    def get(self, request):
+        token = request.GET.get('token')
+        try:
+            payload = jwt.decode(token, settings.SECRET_KEY)
+            user = User.objects.get(id=payload['user_id'])
+            if not user.is_verified:
+                user.is_verified = True
+                user.save()
+            return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
+        except jwt.ExpiredSignatureError as identifier:
+            return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
+        except jwt.exceptions.DecodeError as identifier:
+            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdatePassword(APIView):

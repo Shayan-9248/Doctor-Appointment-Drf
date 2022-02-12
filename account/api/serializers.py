@@ -85,3 +85,11 @@ class ChangePasswordSerializer(serializers.Serializer):
     def validate_new_password(self, value):
         validate_password(value)
         return value
+
+
+class EmailVerificationSerializer(serializers.ModelSerializer):
+    token = serializers.CharField(max_length=555)
+
+    class Meta:
+        model = User
+        fields = ('token',)

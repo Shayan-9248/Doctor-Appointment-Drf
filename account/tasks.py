@@ -10,5 +10,4 @@ def send_email(data):
             body=data['email_body'], 
             to=[data['to_email']],
             fail_silently=False)
-    # return email.send(fail_silently=False)
     return None
