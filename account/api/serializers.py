@@ -92,4 +92,4 @@ class EmailVerificationSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('token',)
+        fields = ("token",)

@@ -46,24 +46,23 @@ from account import tasks
 User = get_user_model()
 
 
-class UserViewSet(ListModelMixin, 
-                  RetrieveModelMixin, 
-                  DestroyModelMixin, 
-                  GenericViewSet):
+class UserViewSet(
+    ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet
+):
     def get_permissions(self):
-        if self.action == ['list', 'delete']:
+        if self.action == ["list", "delete", "retrieve"]:
             permission_classes = (IsAdminUser,)
         else:
-            permission_classes = (AllowAny,)
+            permission_classes = (IsAuthenticated,)
         return [permission() for permission in permission_classes]
 
     def get_queryset(self):
         return User.objects.all()
 
     def get_serializer_class(self):
-        if self.action in ['list', 'destroy']:
+        if self.action in ["list", "destroy"]:
             return UserListSerializer
-        elif self.action == 'retrieve':
+        elif self.action == "retrieve":
             return UserRetrieveSerializer
 
 
@@ -71,20 +70,20 @@ class UserProfileViewSet(GenericViewSet):
     queryset = User.objects.filter(is_active=True)
     serializer_class = UserRetrieveSerializer
     permission_classes = (IsAuthenticated,)
-    http_method_names = ['get', 'patch']
+    http_method_names = ["get", "patch"]
 
-    @action(detail=False, methods=['GET', 'PATCH'])
+    @action(detail=False, methods=["GET", "PATCH"])
     def me(self, request):
         user = User.objects.get(pk=request.user.id)
-        if request.method == 'GET':
+        if request.method == "GET":
             serializer = self.serializer_class(user)
             return Response(serializer.data)
-        elif request.method == 'PATCH':
+        elif request.method == "PATCH":
             serializer = UserUpdateSerializer(user, data=request.data)
             serializer.is_valid(raise_exception=True)
             serializer.save()
             return Response(serializer.data)
-    
+
 
 class SignUpView(GenericAPIView):
     serializer_class = CreateUserSerializer
@@ -95,20 +94,28 @@ class SignUpView(GenericAPIView):
         serializer.is_valid(raise_exception=True)
         serializer.save()
         user_data = serializer.data
-        user = User.objects.get(email=user_data['email'])
+        user = User.objects.get(email=user_data["email"])
         token = RefreshToken.for_user(user).access_token
         current_site = get_current_site(request).domain
-        relativeLink = reverse('email_verify')
-        absurl = 'http://' + current_site + relativeLink + "?token=" + str(token)
-        email_body = 'Hi '+user.username + \
-            ' Use the link below to verify your email \n' + absurl
-        data = {'email_body': email_body, 'to_email': user.email,
-                'email_subject': 'Verify your email'}
+        relativeLink = reverse("email_verify")
+        absurl = "http://" + current_site + relativeLink + "?token=" + str(token)
+        email_body = (
+            "Hi "
+            + user.username
+            + " Use the link below to verify your email \n"
+            + absurl
+        )
+        data = {
+            "email_body": email_body,
+            "to_email": user.email,
+            "email_subject": "Verify your email",
+        }
 
         email = EmailMessage(
-                subject=data['email_subject'], 
-                body=data['email_body'], 
-                to=[data['to_email']])
+            subject=data["email_subject"],
+            body=data["email_body"],
+            to=[data["to_email"]],
+        )
         email.send(fail_silently=False)
         return Response(user_data, status=status.HTTP_201_CREATED)
 
@@ -117,22 +124,32 @@ class VerifyEmail(APIView):
     serializer_class = EmailVerificationSerializer
 
     token_param_config = openapi.Parameter(
-        'token', in_=openapi.IN_QUERY, description='Description', type=openapi.TYPE_STRING)
+        "token",
+        in_=openapi.IN_QUERY,
+        description="Description",
+        type=openapi.TYPE_STRING,
+    )
 
     @swagger_auto_schema(manual_parameters=[token_param_config])
     def get(self, request):
-        token = request.GET.get('token')
+        token = request.GET.get("token")
         try:
             payload = jwt.decode(token, settings.SECRET_KEY)
-            user = User.objects.get(id=payload['user_id'])
+            user = User.objects.get(id=payload["user_id"])
             if not user.is_verified:
                 user.is_verified = True
                 user.save()
-            return Response({'email': 'Successfully activated'}, status=status.HTTP_200_OK)
+            return Response(
+                {"email": "Successfully activated"}, status=status.HTTP_200_OK
+            )
         except jwt.ExpiredSignatureError as identifier:
-            return Response({'error': 'Activation Expired'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Activation Expired"}, status=status.HTTP_400_BAD_REQUEST
+            )
         except jwt.exceptions.DecodeError as identifier:
-            return Response({'error': 'Invalid token'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"error": "Invalid token"}, status=status.HTTP_400_BAD_REQUEST
+            )
 
 
 class UpdatePassword(APIView):

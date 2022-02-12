@@ -90,6 +90,9 @@ DATABASES = {
         "PASSWORD": "mariadb",
         "HOST": "127.0.0.1",
         "PORT": "3300",
+        'TEST': {
+            'MIRROR': 'default',
+        },
     }
 }
 
