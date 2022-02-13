@@ -93,7 +93,8 @@ DATABASES = {
         "USER": "mariadb",
         "PASSWORD": "mariadb",
         "HOST": "127.0.0.1",
-        "PORT": "3300",
+        # "HOST": "db",
+        "PORT": "3306",
         'TEST': {
             'MIRROR': 'default',
         },
