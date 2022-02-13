@@ -20,3 +20,9 @@ class AppointmentSerializer(serializers.ModelSerializer):
         doctor = get_object_or_404(Doctor, pk=doctor)
         doctor.appointments.add(appointment)
         return validated_data
+
+
+class DoctorSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Doctor
+        fields = ('name', 'expertise', 'age', 'gender', 'picture')
