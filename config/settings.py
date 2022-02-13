@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     # Local Apps
     "account.apps.AccountConfig",
+    "appointment.apps.AppointmentConfig",
     # 3rd-party Apps
     "rest_framework",
     "drf_yasg",
