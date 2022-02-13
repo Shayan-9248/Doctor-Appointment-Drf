@@ -170,3 +170,10 @@ SIMPLE_JWT = {
 INTERNAL_IPS = [
     "127.0.0.1",
 ]
+
+# Celery
+CELERY_BROKER_URL = "amqp://guest:guest@localhost:5672/"
+CELERY_RESULT_BACKEND = "rpc://"
+# CELERY_RESUL_SERIALIZER = "json"
+# CELERY_TASK_SERIALIZER = "json"
+# CELERY_ACCEPT_CONTENT = ["json", "pickle"]

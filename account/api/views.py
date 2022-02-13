@@ -41,7 +41,7 @@ from .serializers import (
     ChangePasswordSerializer,
     EmailVerificationSerializer,
 )
-from account import tasks
+from account.tasks import send_email
 
 User = get_user_model()
 
@@ -111,12 +111,13 @@ class SignUpView(GenericAPIView):
             "email_subject": "Verify your email",
         }
 
-        email = EmailMessage(
-            subject=data["email_subject"],
-            body=data["email_body"],
-            to=[data["to_email"]],
-        )
-        email.send(fail_silently=False)
+        # email = EmailMessage(
+        #     subject=data["email_subject"],
+        #     body=data["email_body"],
+        #     to=[data["to_email"]],
+        # )
+        # email.send(fail_silently=False)
+        send_email.delay(data)
         return Response(user_data, status=status.HTTP_201_CREATED)
 
 

@@ -5,10 +5,10 @@ from celery import shared_task
 
 @shared_task
 def send_email(data):
-    EmailMessage.send(
+    email = EmailMessage(
         subject=data["email_subject"],
         body=data["email_body"],
         to=[data["to_email"]],
-        fail_silently=False,
     )
+    email.send(fail_silently=False)
     return None
