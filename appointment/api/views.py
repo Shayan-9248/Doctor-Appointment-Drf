@@ -28,3 +28,6 @@ class AppointmentViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         return AppointmentSerializer
+    
+    def get_serializer_context(self):
+        return {'user_id': self.request.user.id}

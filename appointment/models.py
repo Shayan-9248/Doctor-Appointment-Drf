@@ -46,4 +46,4 @@ class Appointment(TimeStamp):
     date = models.DateField()
 
     def __str__(self):
-        return f"{self.doctor} - {self.category}"
+        return f"{self.doctor}"
