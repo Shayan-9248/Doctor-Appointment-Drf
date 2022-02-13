@@ -1,4 +1,11 @@
+# Stdlib imports
+import json
+
+# Core Django imports
 from django.contrib.auth import get_user_model
+from django.core import mail
+
+# 3rd-party imports
 from rest_framework import status
 from model_bakery import baker
 import pytest
@@ -25,16 +32,19 @@ def test_get_all_users_if_user_is_not_staff(api_client):
 @pytest.mark.django_db
 def test_get_user_if_user_exists(api_client, authenticate):
     user = baker.make(User)
-    authenticate()
+    authenticate(is_staff=True)
 
     response = api_client.get(f"/api/users/{user.id}/")
+    response_content = json.loads(response.content)
 
     assert response.status_code == status.HTTP_200_OK
+    assert response_content.get("username") == user.username
+    assert response_content.get("email") == user.email
 
 
 @pytest.mark.django_db
 def test_get_user_if_user_does_not_exists(api_client, authenticate):
-    authenticate()
+    authenticate(is_staff=True)
 
     response = api_client.get("/api/users/90/")
 
@@ -92,3 +102,13 @@ def test_get_profile_if_user_is_authenticated(api_client, authenticate):
 def test_get_profile_if_user_is_not_authenticated(api_client):
     response = api_client.get("/api/me/")
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_send_email_should_succeed(mailoutbox):
+    mail.send_mail('subject', 'body', 'from@example.com', ['to@example.com'])
+    assert len(mailoutbox) == 1
+    m = mailoutbox[0]
+    assert m.subject == 'subject'
+    assert m.body == 'body'
+    assert m.from_email == 'from@example.com'
+    assert list(m.to) == ['to@example.com']
