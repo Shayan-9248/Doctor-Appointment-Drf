@@ -17,7 +17,7 @@ class Doctor(TimeStamp):
         male = "m", "Male"
         female = "f", "Female"
 
-    doctor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    name = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     expertise = models.CharField(max_length=150)
     age = models.PositiveIntegerField()
     gender = models.CharField(max_length=15, choices=Gender.choices)
@@ -27,7 +27,7 @@ class Doctor(TimeStamp):
     picture = models.ImageField(upload_to="media/%Y-%m-%d/", null=True, blank=True)
 
     def __str__(self):
-        return f"{self.doctor.username} - {self.expertise}"
+        return f"{self.name.username} - {self.expertise}"
 
 
 class Appointment(TimeStamp):
@@ -46,4 +46,4 @@ class Appointment(TimeStamp):
     date = models.DateField()
 
     def __str__(self):
-        return f"{self.doctor}"
+        return f"{self.doctor} - {self.patient.username}"

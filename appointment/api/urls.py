@@ -7,4 +7,7 @@ from . import views
 router = DefaultRouter()
 router.register("appointment", views.AppointmentViewSet, basename="apppointment")
 
-urlpatterns = [path("", include(router.urls))]
+urlpatterns = [
+    path("cancel-appointment/<int:pk>/", views.cancel_appointment, name='cancel_appointment'),
+    path("", include(router.urls)),
+]
