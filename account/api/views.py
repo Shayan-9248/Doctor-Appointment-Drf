@@ -50,7 +50,7 @@ class UserViewSet(
     ListModelMixin, RetrieveModelMixin, DestroyModelMixin, GenericViewSet
 ):
     def get_permissions(self):
-        if self.action == ["list", "delete", "retrieve"]:
+        if self.action in ["list", "delete", "retrieve"]:
             permission_classes = (IsAdminUser,)
         else:
             permission_classes = (IsAuthenticated,)

@@ -15,57 +15,110 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Appointment',
+            name="Appointment",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('updated', models.DateTimeField(auto_now=True)),
-                ('status', models.CharField(choices=[('a', 'Accept'), ('c', 'Cancel'), ('f', 'Finished')], default='a', max_length=15)),
-                ('date', models.DateTimeField()),
-                ('time', models.DateField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                (
+                    "status",
+                    models.CharField(
+                        choices=[("a", "Accept"), ("c", "Cancel"), ("f", "Finished")],
+                        default="a",
+                        max_length=15,
+                    ),
+                ),
+                ("date", models.DateTimeField()),
+                ("time", models.DateField()),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Category',
+            name="Category",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('updated', models.DateTimeField(auto_now=True)),
-                ('name', models.CharField(max_length=150)),
-                ('slug', models.SlugField(null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                ("name", models.CharField(max_length=150)),
+                ("slug", models.SlugField(null=True)),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.CreateModel(
-            name='Doctor',
+            name="Doctor",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('created', models.DateTimeField(auto_now_add=True)),
-                ('updated', models.DateTimeField(auto_now=True)),
-                ('expertise', models.CharField(max_length=150)),
-                ('age', models.PositiveIntegerField()),
-                ('gender', models.CharField(choices=[('m', 'Male'), ('f', 'Female')], max_length=15)),
-                ('picture', models.ImageField(null=True, upload_to='media/%Y-%m-%d/')),
-                ('appointments', models.ManyToManyField(blank=True, related_name='appointments', to='appointment.Appointment')),
-                ('doctor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("created", models.DateTimeField(auto_now_add=True)),
+                ("updated", models.DateTimeField(auto_now=True)),
+                ("expertise", models.CharField(max_length=150)),
+                ("age", models.PositiveIntegerField()),
+                (
+                    "gender",
+                    models.CharField(
+                        choices=[("m", "Male"), ("f", "Female")], max_length=15
+                    ),
+                ),
+                ("picture", models.ImageField(null=True, upload_to="media/%Y-%m-%d/")),
+                (
+                    "appointments",
+                    models.ManyToManyField(
+                        blank=True,
+                        related_name="appointments",
+                        to="appointment.Appointment",
+                    ),
+                ),
+                (
+                    "doctor",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE,
+                        to=settings.AUTH_USER_MODEL,
+                    ),
+                ),
             ],
             options={
-                'abstract': False,
+                "abstract": False,
             },
         ),
         migrations.AddField(
-            model_name='appointment',
-            name='category',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, to='appointment.category'),
+            model_name="appointment",
+            name="category",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT, to="appointment.category"
+            ),
         ),
         migrations.AddField(
-            model_name='appointment',
-            name='doctor',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='appointment.doctor'),
+            model_name="appointment",
+            name="doctor",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to="appointment.doctor"
+            ),
         ),
     ]

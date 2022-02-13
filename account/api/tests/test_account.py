@@ -43,11 +43,10 @@ def test_get_user_if_user_does_not_exists(api_client, authenticate):
 
 @pytest.mark.django_db
 def test_create_user_if_data_is_valid(api_client):
-    response = api_client.post("/api/sign-up/", data={
-        "username": "test",
-        "email": "test@email.com",
-        "password": 123
-    })
+    response = api_client.post(
+        "/api/sign-up/",
+        data={"username": "test", "email": "test@email.com", "password": 123},
+    )
 
     assert response.status_code == status.HTTP_201_CREATED
 
