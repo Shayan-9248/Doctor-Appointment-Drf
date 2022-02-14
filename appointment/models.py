@@ -1,7 +1,11 @@
 # Core Django imports
 from django.db import models
 from django.conf import settings
-from django.utils.text import slugify
+from django.contrib.contenttypes.fields import GenericRelation
+from django.contrib.contenttypes.models import ContentType
+
+# Local imports
+from comment.models import Comment
 
 
 class TimeStamp(models.Model):
@@ -44,6 +48,13 @@ class Appointment(TimeStamp):
         max_length=15, default=Status.accepted, choices=Status.choices
     )
     date = models.DateField()
+    comments = GenericRelation(Comment)
 
     def __str__(self):
         return f"{self.doctor} - {self.patient.username}"
+    
+    @property
+    def get_content_type(self):
+        instance = self
+        content_type = ContentType.objects.get_for_model(instance.__class__)
+        return content_type
