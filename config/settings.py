@@ -43,12 +43,14 @@ INSTALLED_APPS = [
     # Local Apps
     "account.apps.AccountConfig",
     "appointment.apps.AppointmentConfig",
+    "comment.apps.CommentConfig",
     # 3rd-party Apps
     "rest_framework",
     "drf_yasg",
     "rest_framework_simplejwt",
     "django_rest_passwordreset",
     "debug_toolbar",
+    "shell_plus",
 ]
 
 MIDDLEWARE = [
