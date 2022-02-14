@@ -11,7 +11,11 @@ doctor_router = SimpleRouter()
 doctor_router.register("doctor", views.DoctorViewSet, basename="doctor")
 
 urlpatterns = [
-    path("cancel-appointment/<int:pk>/", views.cancel_appointment, name='cancel_appointment'),
+    path(
+        "cancel-appointment/<int:pk>/",
+        views.cancel_appointment,
+        name="cancel_appointment",
+    ),
     path("", include(router.urls)),
     path("", include(doctor_router.urls)),
 ]

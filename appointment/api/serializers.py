@@ -16,13 +16,13 @@ class AppointmentSerializer(serializers.ModelSerializer):
         fields = ("doctor", "date")
 
     def create(self, validated_data):
-        user_id = self.context.get('user_id')
-        user = self.context.get('user')
+        user_id = self.context.get("user_id")
+        user = self.context.get("user")
         doctor = validated_data.get("doctor").id
         doctor_name = validated_data.get("doctor")
-        date = validated_data.get('date')
+        date = validated_data.get("date")
 
-        appointment = Appointment(patient_id=user_id ,**validated_data)
+        appointment = Appointment(patient_id=user_id, **validated_data)
         appointment.save()
         email_body = (
             "Hi "
@@ -33,9 +33,7 @@ class AppointmentSerializer(serializers.ModelSerializer):
         doctor.appointments.add(appointment)
 
         email = EmailMessage(
-            subject='Doctor Appointment',
-            body=email_body,
-            to=[user.email]
+            subject="Doctor Appointment", body=email_body, to=[user.email]
         )
         send_email_appointment.delay(email)
         return validated_data
@@ -44,4 +42,4 @@ class AppointmentSerializer(serializers.ModelSerializer):
 class DoctorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Doctor
-        fields = ('name', 'expertise', 'age', 'gender', 'picture')
+        fields = ("name", "expertise", "age", "gender", "picture")

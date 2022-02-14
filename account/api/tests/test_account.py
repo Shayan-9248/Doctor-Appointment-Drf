@@ -105,10 +105,10 @@ def test_get_profile_if_user_is_not_authenticated(api_client):
 
 
 def test_send_email_should_succeed(mailoutbox):
-    mail.send_mail('subject', 'body', 'from@example.com', ['to@example.com'])
+    mail.send_mail("subject", "body", "from@example.com", ["to@example.com"])
     assert len(mailoutbox) == 1
     m = mailoutbox[0]
-    assert m.subject == 'subject'
-    assert m.body == 'body'
-    assert m.from_email == 'from@example.com'
-    assert list(m.to) == ['to@example.com']
+    assert m.subject == "subject"
+    assert m.body == "body"
+    assert m.from_email == "from@example.com"
+    assert list(m.to) == ["to@example.com"]

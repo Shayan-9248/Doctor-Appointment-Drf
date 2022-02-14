@@ -15,12 +15,12 @@ class CommentViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         return CommentSerializer
-    
+
     def get_serializer_context(self):
         return {
             "user_id": self.request.user.id,
-            "appointment_id": self.kwargs["appointment_pk"]
+            "appointment_id": self.kwargs["appointment_pk"],
         }
-    
+
     def get_queryset(self):
         return Comment.objects.all()

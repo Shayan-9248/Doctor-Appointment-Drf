@@ -11,7 +11,7 @@ class CommentSerializer(serializers.ModelSerializer):
     class Meta:
         model = Comment
         fields = ("content",)
-    
+
     def create(self, validated_data):
         instance = get_object_or_404(Appointment, pk=self.context.get("appointment_id"))
         user_id = self.context.get("user_id")

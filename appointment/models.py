@@ -52,7 +52,7 @@ class Appointment(TimeStamp):
 
     def __str__(self):
         return f"{self.doctor} - {self.patient.username}"
-    
+
     @property
     def get_content_type(self):
         instance = self

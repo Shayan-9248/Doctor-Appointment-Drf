@@ -32,24 +32,21 @@ class AppointmentViewSet(ModelViewSet):
 
     def get_serializer_class(self):
         return AppointmentSerializer
-    
+
     def get_serializer_context(self):
-        return {
-            'user_id': self.request.user.id,
-            "user": self.request.user
-        }
+        return {"user_id": self.request.user.id, "user": self.request.user}
 
 
-@api_view(('GET',))
+@api_view(("GET",))
 @permission_classes((IsAuthenticated,))
 def cancel_appointment(request, pk):
     appointment = get_object_or_404(Appointment, pk=pk)
     if appointment.patient.id == request.user.id:
-        appointment.status = 'c'
+        appointment.status = "c"
         appointment.save()
-        return Response('Appointment Canceled', 200)
+        return Response("Appointment Canceled", 200)
     else:
-        return Response('You do not own this appointment!', 403)
+        return Response("You do not own this appointment!", 403)
 
 
 class DoctorViewSet(ModelViewSet):
@@ -59,6 +56,6 @@ class DoctorViewSet(ModelViewSet):
 
     def get_queryset(self):
         return Doctor.objects.select_related("name").all()
-    
+
     def get_serializer_class(self):
         return DoctorSerializer

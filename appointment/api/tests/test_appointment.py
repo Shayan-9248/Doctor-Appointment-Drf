@@ -51,11 +51,9 @@ def test_get_appointment_if_value_does_not_exists(api_client, authenticate):
 def test_create_appointment_if_data_is_valid(api_client, authenticate):
     authenticate()
 
-    response = api_client.post("/api/appointment/", data={
-        "doctor": 1,
-        "patient": 2,
-        "date": "2022-2-13"
-    })
+    response = api_client.post(
+        "/api/appointment/", data={"doctor": 1, "patient": 2, "date": "2022-2-13"}
+    )
 
     assert response.status_code == status.HTTP_201_CREATED
 
@@ -64,10 +62,9 @@ def test_create_appointment_if_data_is_valid(api_client, authenticate):
 def test_create_appointment_if_data_is_invalid(api_client, authenticate):
     authenticate()
 
-    response = api_client.post("/api/appointment/", data={
-        "patient": 2,
-        "date": "2022-2-13"
-    })
+    response = api_client.post(
+        "/api/appointment/", data={"patient": 2, "date": "2022-2-13"}
+    )
 
     assert response.status_code == status.HTTP_400_BAD_REQUEST
     assert json.loads(response.content) == {"doctor": ["This field is required."]}

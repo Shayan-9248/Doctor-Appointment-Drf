@@ -9,9 +9,7 @@ from appointment.api.urls import router
 # router = DefaultRouter()
 # router.register('comment', views.CommentViewSet, basename='comment')
 # NestedDefaultRouter
-comment_router = NestedDefaultRouter(router, 'appointment', lookup='appointment')
-comment_router.register('comment', views.CommentViewSet, basename='comment')
+comment_router = NestedDefaultRouter(router, "appointment", lookup="appointment")
+comment_router.register("comment", views.CommentViewSet, basename="comment")
 
-urlpatterns = [
-    path('', include(comment_router.urls))
-]
+urlpatterns = [path("", include(comment_router.urls))]

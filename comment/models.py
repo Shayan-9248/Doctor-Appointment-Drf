@@ -15,16 +15,17 @@ class CommentManager(models.Manager):
 class Comment(models.Model):
     author = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField()
-    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, 
-    null=True, blank=True)
+    content_type = models.ForeignKey(
+        ContentType, on_delete=models.CASCADE, null=True, blank=True
+    )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()
 
     objects = CommentManager()
 
     def __str__(self):
-        return f'{self.author.username} - {self.content[:20]}'
-    
+        return f"{self.author.username} - {self.content[:20]}"
+
     @property
     def comments(self):
         instance = self
