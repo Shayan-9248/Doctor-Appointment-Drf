@@ -2,7 +2,6 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import (
     IsAuthenticated, 
     AllowAny,
-    IsAdminUser,
 )
 
 from .serializers import (
@@ -10,12 +9,15 @@ from .serializers import (
     CommentReplySerializer,
 )
 from comment.models import Comment
+from .permissions import IsAuthorOrReadOnly
 
 
 class CommentViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             permission_classes = (AllowAny,)
+        elif self.action in ["update", "partial_update", "destroy"]:
+            permission_classes = (IsAuthorOrReadOnly,)
         else:
             permission_classes = (IsAuthenticated,)
         return [permission() for permission in permission_classes]
@@ -37,6 +39,8 @@ class CommentReplyViewSet(ModelViewSet):
     def get_permissions(self):
         if self.action in ["list", "retrieve"]:
             permission_classes = (AllowAny,)
+        elif self.action in ["update", "partial_update", "destroy"]:
+            permission_classes = (IsAuthorOrReadOnly,)
         else:
             permission_classes = (IsAuthenticated,)
         return [permission() for permission in permission_classes]
