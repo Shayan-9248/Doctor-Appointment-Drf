@@ -34,6 +34,7 @@ def test_get_one_comment_returns_200(api_client):
 
     assert response.status_code == status.HTTP_200_OK
     assert response_content.get("content") == comment.content
+    assert response_content.get("object_id") == comment.object_id
 
 
 @pytest.mark.skip
@@ -71,12 +72,47 @@ def test_create_comment_if_user_is_not_authenticated(api_client):
 def test_update_comment_if_user_is_not_authenticated(api_client):
     appointment = baker.make(Appointment)
     user = baker.make(User)
+    comment = baker.make(Comment)
 
-    response = api_client.post(f"/api/appointment/{appointment.id}/comment/", data={
+    response = api_client.patch(f"/api/appointment/{appointment.id}/comment/{comment.id}/", data={
         "author_id": user.id,
         "content": "hello",
-        "content_type": appointment.get_content_type,
-        "object_id": appointment.id
     })
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_update_comment_if_user_is_not_the_author(api_client, authenticate):
+    authenticate()
+    appointment = baker.make(Appointment)
+    user = baker.make(User)
+    comment = baker.make(Comment)
+
+    response = api_client.patch(f"/api/appointment/{appointment.id}/comment/{comment.id}/", data={
+        "author_id": user.id,
+        "content": "hello",
+    })
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
+
+
+@pytest.mark.django_db
+def test_delete_comment_if_user_is_not_authenticated(api_client):
+    appointment = baker.make(Appointment)
+    comment = baker.make(Comment)
+
+    response = api_client.delete(f"/api/appointment/{appointment.id}/comment/{comment.id}/")
+
+    assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+@pytest.mark.django_db
+def test_delete_comment_if_user_is_not_the_author(api_client, authenticate):
+    authenticate()
+    appointment = baker.make(Appointment)
+    comment = baker.make(Comment)
+
+    response = api_client.patch(f"/api/appointment/{appointment.id}/comment/{comment.id}/")
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN
