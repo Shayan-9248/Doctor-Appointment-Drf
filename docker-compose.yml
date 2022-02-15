@@ -12,46 +12,46 @@ services:
       - MARIADB_USER=mariadb
     ports:
       - "3306:3306"
-    # networks:
-      # - main
+    networks:
+      - main
 
-  # rabbitmq:
-  #   image: rabbitmq:latest
-  #   container_name: raabbitmq
-  #   restart: on-failure
-  #   ports:
-  #     - '5672:5672'
-  #   networks:
-  #     - main
+  rabbitmq:
+    image: rabbitmq:latest
+    container_name: raabbitmq
+    restart: on-failure
+    ports:
+      - '5672:5672'
+    networks:
+      - main
     
-  # celery_worker:
-  #   container_name: celery_worker
-  #   command: 'celery -A config worker -l info'
-  #   depends_on:
-  #     - rabbitmq
-  #     - app
-  #     - mysql
-  #   image: app-image  # search it in this dir
-  #   environment: 
-  #     - C_FORCE_ROOT='true'
-  #   networks:
-  #     - main
-    # restart: on-failure
+  celery_worker:
+    container_name: celery_worker
+    command: 'celery -A config worker -l info'
+    depends_on:
+      - rabbitmq
+      - app
+      - mysql
+    image: app-image  # search it in this dir
+    environment: 
+      - C_FORCE_ROOT='true'
+    networks:
+      - main
+    restart: on-failure
     
-#   app:
-#     build: .
-#     command: sh -c 'python manage.py migrate && python manage.py runserver 0.0.0.0:8080'
-#     container_name: app
-#     volumes:
-#       - .:/src/
-#     depends_on:
-#       - db
-#       - rabbitmq
-#     expose:
-#       - '8080'
-#     restart: on-failure
-#     networks:
-#       - main
+  app:
+    build: .
+    command: sh -c 'python manage.py migrate && python manage.py runserver 0.0.0.0:8080'
+    container_name: app
+    volumes:
+      - .:/src/
+    depends_on:
+      - db
+      - rabbitmq
+    expose:
+      - '8080'
+    restart: on-failure
+    networks:
+      - main
 
-# networks:
-#   main:
+networks:
+  main:
