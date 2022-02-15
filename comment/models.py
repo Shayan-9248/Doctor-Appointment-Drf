@@ -20,8 +20,13 @@ class Comment(models.Model):
     )
     object_id = models.PositiveIntegerField(null=True, blank=True)
     content_object = GenericForeignKey()
+    parent = models.ForeignKey("self", on_delete=models.PROTECT, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
 
     objects = CommentManager()
+
+    class Meta:
+        ordering = ("-created_at",)
 
     def __str__(self):
         return f"{self.author.username} - {self.content[:20]}"
@@ -31,3 +36,12 @@ class Comment(models.Model):
         instance = self
         qs = Comment.objects.filter_by_instance(instance)
         return qs
+
+    def children(self):
+        return Comment.objects.filter(parent=self)
+
+    @property
+    def is_parent(self):
+        if self.parent is not None:
+            return False
+        return True
